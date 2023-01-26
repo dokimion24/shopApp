@@ -7,7 +7,24 @@ class Product {
   }
 }
 
+class ShoppingCart {
+  items = [];
+  addProduct(product) {
+    this.items.push(product);
+    this.totalOutput.innerHTML = `<h2>Total: \$${1}</h2>`;
+  }
 
+  render() {
+    const cartEl = document.createElement('section');
+    cartEl.innerHTML = `
+      <h2>Total: \$${0}</h2>
+      <button>Order Now!</button>
+    `;
+    cartEl.className = 'cart';
+    this.totalOutput = cartEl.querySelector('h2');
+    return cartEl;
+  }
+}
 
 class ProductItem {
   constructor(product) {
@@ -15,24 +32,23 @@ class ProductItem {
   }
 
   addToCart() {
-    console.log('Adding product to cart');
-    console.log(this.product);
+    App.addProductToCart(this.product);
   }
 
   render() {
     const prodEl = document.createElement('li');
     prodEl.className = 'product-item';
     prodEl.innerHTML = `
-      <div>
-        <img src="${this.product.imageUrl}" alt"${this.product.title}"/>
-        <div class="product-item__content">
-          <h2>${this.product.title}</h2>
-          <h3>\$${this.product.price}</h3>
-          <p>${this.product.description}</p>
-          <button>Add to Cart</button>
+        <div>
+          <img src="${this.product.imageUrl}" alt="${this.product.title}" >
+          <div class="product-item__content">
+            <h2>${this.product.title}</h2>
+            <h3>\$${this.product.price}</h3>
+            <p>${this.product.description}</p>
+            <button>Add to Cart</button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
     const addCartButton = prodEl.querySelector('button');
     addCartButton.addEventListener('click', this.addToCart.bind(this));
     return prodEl;
@@ -43,32 +59,57 @@ class ProductList {
   products = [
     new Product(
       'A Pillow',
-      'https://royaldesign.kr/image/9/ferm-living-kelim-cushion-50x50-cm-squares-0?w=800&quality=80',
-      'A soft pillow',
+      'https://www.maxpixel.net/static/photo/2x/Soft-Pillow-Green-Decoration-Deco-Snuggle-1241878.jpg',
+      'A soft pillow!',
       19.99
     ),
     new Product(
       'A Carpet',
-      'https://www.trdst.com/_next/image?url=https%3A%2F%2Fimages.homing.haus%2Fproduct%2F1000078887%2Fmain_20221125224122&w=1920&q=75',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Ardabil_Carpet.jpg/397px-Ardabil_Carpet.jpg',
       'A carpet which you might like - or not.',
-      59.99
+      89.99
     ),
   ];
 
-  constructor() {}
-
   render() {
-    const renderHook = document.querySelector('#app');
-    const productList = document.createElement('ul');
-    productList.className = 'product-list';
+    const prodList = document.createElement('ul');
+    prodList.className = 'product-list';
     for (const prod of this.products) {
       const productItem = new ProductItem(prod);
       const prodEl = productItem.render();
-      productList.append(prodEl);
+      prodList.append(prodEl);
     }
-    renderHook.append(productList);
+    return prodList;
   }
 }
 
-const productList = new ProductList();
-productList.render();
+class Shop {
+  render() {
+    const renderHook = document.getElementById('app');
+
+    this.cart = new ShoppingCart();
+
+    const cartEl = this.cart.render();
+    const productList = new ProductList();
+    const prodListEl = productList.render();
+
+    renderHook.append(cartEl);
+    renderHook.append(prodListEl);
+  }
+}
+
+class App {
+  static cart;
+
+  static init() {
+    const shop = new Shop();
+    shop.render();
+    this.cart = shop.cart;
+  }
+
+  static addProductToCart(product) {
+    this.cart.addProduct(product);
+  }
+}
+
+App.init();
